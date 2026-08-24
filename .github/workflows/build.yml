@@ -1,5 +1,5 @@
 ```yaml
-name: Build WASM
+name: Build WASM File
 
 on:
   workflow_dispatch:
