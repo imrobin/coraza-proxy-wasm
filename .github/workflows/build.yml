@@ -2,12 +2,6 @@
 name: Build WASM
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -32,38 +26,24 @@ jobs:
 
       - name: Check versions
         run: |
-          echo "Go:"
           go version
-
-          echo "TinyGo:"
           tinygo version
-
-      - name: Download dependencies
-        run: |
-          go mod download
 
       - name: Build WASM
         run: |
           go run mage.go build
 
-      - name: Verify build
+      - name: Check WASM
         run: |
-          echo "Build directory:"
+          echo "========== build directory =========="
           ls -lah build/
 
-          echo ""
-          echo "WASM files:"
-          find build -type f -name "*.wasm" -ls
+          echo "========== wasm files =========="
+          find build -name "*.wasm" -type f -exec ls -lh {} \;
 
-          echo ""
-          echo "Checking main.wasm..."
           test -f build/main.wasm
 
-          echo ""
-          echo "main.wasm:"
-          ls -lh build/main.wasm
-
-      - name: Upload WASM artifact
+      - name: Upload main.wasm
         uses: actions/upload-artifact@v4
         with:
           name: coraza-proxy-wasm
