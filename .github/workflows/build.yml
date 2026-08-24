@@ -1,4 +1,3 @@
-```yaml
 name: Build WASM File
 
 on:
@@ -49,4 +48,4 @@ jobs:
           name: coraza-proxy-wasm
           path: build/main.wasm
           if-no-files-found: error
-```
+
