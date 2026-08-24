@@ -1,5 +1,5 @@
 ```yaml
-name: Build Coraza Proxy WASM
+name: Build WASM
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    name: Build WASM
+    name: Build Coraza Proxy WASM
     runs-on: ubuntu-latest
 
     steps:
@@ -22,31 +22,51 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: '1.23'
           cache: true
 
-      - name: Setup TinyGo
+      - name: Install TinyGo
         run: |
           wget -q https://github.com/tinygo-org/tinygo/releases/download/v0.34.0/tinygo_0.34.0_amd64.deb
           sudo dpkg -i tinygo_0.34.0_amd64.deb
 
       - name: Check versions
         run: |
+          echo "Go:"
           go version
+
+          echo "TinyGo:"
           tinygo version
+
+      - name: Download dependencies
+        run: |
+          go mod download
 
       - name: Build WASM
         run: |
           go run mage.go build
 
-      - name: Check build result
+      - name: Verify build
         run: |
-          ls -lh build/
+          echo "Build directory:"
+          ls -lah build/
+
+          echo ""
+          echo "WASM files:"
+          find build -type f -name "*.wasm" -ls
+
+          echo ""
+          echo "Checking main.wasm..."
           test -f build/main.wasm
 
-      - name: Upload build artifact
+          echo ""
+          echo "main.wasm:"
+          ls -lh build/main.wasm
+
+      - name: Upload WASM artifact
         uses: actions/upload-artifact@v4
         with:
           name: coraza-proxy-wasm
           path: build/main.wasm
+          if-no-files-found: error
 ```
